@@ -99,7 +99,7 @@ export default function MapView({
         {/* Render Location Markers */}
         {locations.map((loc, idx) => {
           if (!loc.latitude || !loc.longitude) return null;
-          let icon = undefined;
+          let icon = new L.Icon.Default();
           if (loc.type === 'origin' || loc.type === 'pickup') icon = originIcon;
           else if (loc.type === 'destination' || loc.type === 'dropoff') icon = destIcon;
 
