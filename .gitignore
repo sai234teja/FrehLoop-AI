@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+backend/venv/
+.venv/
+env/
+venv/
+ENV/
+test_clean_env/
+
+# Database and media uploads
+freshloop.db
+freshloop_backup_sf.db
+backend/freshloop.db
+*.db
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Temporary test images and local test runners
+test_*.jpg
+test_*.png
+demo_*.jpg
+test_p1_suite.py
+
+# Node & Frontend build
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+.DS_Store
+Thumbs.db
