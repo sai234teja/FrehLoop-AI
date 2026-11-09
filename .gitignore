@@ -32,6 +32,11 @@ backend/.env
 backend/.env.*
 !backend/.env.example
 
+# Executables and tunneling tools
+cloudflared.exe
+*.exe
+scratch/
+
 # Temporary test images and local test runners
 test_*.jpg
 test_*.png

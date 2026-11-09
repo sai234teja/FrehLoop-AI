@@ -182,12 +182,12 @@ export default function ImpactDashboard() {
               </div>
 
               <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-2 mt-4">
-                <p className="font-semibold text-slate-800">Impact Model Integrity & Documented Sources:</p>
+                <p className="font-semibold text-slate-800">Impact Model Assumptions & Methodology:</p>
                 <ul className="list-disc pl-4 space-y-1 text-slate-600">
-                  <li><strong>Verified Rescued Weight:</strong> Calculated exclusively from completed deliveries in the SQLite database records; in-transit or pending listings are excluded until verified.</li>
-                  <li><strong>Meal Portion Estimate:</strong> USDA Food and Nutrition Service & UN FAO food portion model (1 meal equivalent = 0.42 kg balanced nutrition).</li>
-                  <li><strong>Carbon Abatement Estimate:</strong> UNEP Food Waste Index Report & Project Drawdown model (2.5 kg CO₂e saved per kg diverted from anaerobic municipal landfills).</li>
-                  <li><strong>Water Conservation Estimate:</strong> Water Footprint Network global average agricultural baseline (~250 liters embedded irrigation per kg food saved).</li>
+                  <li><strong>Verified Rescued Weight:</strong> Calculated exclusively from completed deliveries in the SQLite database records (using donor-entered estimated weight); in-transit or pending listings are excluded until delivered.</li>
+                  <li><strong>Meal Portion Estimate:</strong> Illustrative estimated conversion assumptions used for prototype impact calculations (~0.42 kg per meal equivalent).</li>
+                  <li><strong>Carbon Abatement Estimate:</strong> Illustrative estimated conversion assumptions used for prototype impact calculations (~2.5 kg CO₂e avoided per kg food diverted).</li>
+                  <li><strong>Water Conservation Estimate:</strong> Illustrative estimated conversion assumptions used for prototype impact calculations (~250 liters embedded water per kg food saved).</li>
                 </ul>
               </div>
             </div>

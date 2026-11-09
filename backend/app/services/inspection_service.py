@@ -157,15 +157,4 @@ class FoodInspectionService:
             "disclaimer": "AI provides visual categorization and text detection assistance only. A photograph cannot verify chemical freshness, bacterial status, or absence of toxins. Physical inspection by receiver required."
         }
 
-        return {
-            "predicted_category": predicted_category,
-            "raw_class_name": raw_label.replace("_", " ").title(),
-            "confidence": confidence,
-            "ocr_text": ocr_text.strip(),
-            "extracted_expiry": extracted_expiry,
-            "safety_flags": safety_flags,
-            "safety_status": safety_status,
-            "disclaimer": "AI provides visual categorization and text detection assistance only. A photograph cannot verify chemical freshness, bacterial status, or absence of toxins."
-        }
-
 inspection_service = FoodInspectionService()

@@ -62,16 +62,28 @@ export default function DonorDashboard({ currentUser }) {
     showNotification('success', `Quick-filled: ${preset.foodName}`);
   };
 
+  // Helper to format a Date object into local 'YYYY-MM-DDTHH:mm' for datetime-local inputs
+  const formatLocalDatetime = (date) => {
+    const pad = (n) => String(n).padStart(2, '0');
+    const Y = date.getFullYear();
+    const M = pad(date.getMonth() + 1);
+    const D = pad(date.getDate());
+    const h = pad(date.getHours());
+    const m = pad(date.getMinutes());
+    return `${Y}-${M}-${D}T${h}:${m}`;
+  };
+
   useEffect(() => {
     loadMyDonations();
-    // Default pickup deadline to 4 hours from now
+    // Default pickup deadline to 4 hours from now in user's local timezone
     const d = new Date();
     d.setHours(d.getHours() + 4);
-    setPickupDeadline(d.toISOString().slice(0, 16));
+    setPickupDeadline(formatLocalDatetime(d));
 
+    // Default prep time to 1 hour ago in user's local timezone
     const p = new Date();
     p.setHours(p.getHours() - 1);
-    setPrepTime(p.toISOString().slice(0, 16));
+    setPrepTime(formatLocalDatetime(p));
   }, []);
 
   async function loadMyDonations() {
