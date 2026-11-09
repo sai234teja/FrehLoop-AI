@@ -52,6 +52,16 @@ export default function DonorDashboard({ currentUser }) {
     setTimeout(() => setNotification(null), 4000);
   };
 
+  const handlePresetSelect = (preset) => {
+    setFoodName(preset.foodName);
+    setFoodCategory(preset.foodCategory);
+    setQuantity(preset.quantity);
+    setUnit(preset.unit);
+    setEstimatedKg(preset.estimatedKg);
+    setStorageMethod(preset.storageMethod);
+    showNotification('success', `Quick-filled: ${preset.foodName}`);
+  };
+
   useEffect(() => {
     loadMyDonations();
     // Default pickup deadline to 4 hours from now
@@ -228,9 +238,45 @@ export default function DonorDashboard({ currentUser }) {
 
         {/* Creation Form */}
         <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs p-6">
-          <div className="flex items-center gap-2 mb-6 pb-3 border-b border-slate-100">
-            <Plus className="w-5 h-5 text-emerald-600" />
-            <h2 className="text-lg font-bold text-slate-800">Publish Surplus Food Donation</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Plus className="w-5 h-5 text-emerald-600" />
+              <h2 className="text-lg font-bold text-slate-800">Publish Surplus Food Donation</h2>
+            </div>
+            {/* Quick-Fill Demo Presets */}
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quick Fill:</span>
+              <button
+                type="button"
+                onClick={() => handlePresetSelect({
+                  foodName: 'Surplus Biryani Boxes',
+                  foodCategory: 'Prepared Food',
+                  quantity: '8',
+                  unit: 'boxes',
+                  estimatedKg: '5.0',
+                  storageMethod: 'Heated Container'
+                })}
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition cursor-pointer"
+                title="8 boxes (5 kg) of hot-holding meals"
+              >
+                Biryani Boxes (5kg)
+              </button>
+              <button
+                type="button"
+                onClick={() => handlePresetSelect({
+                  foodName: 'Bread & Pastries',
+                  foodCategory: 'Bakery',
+                  quantity: '12',
+                  unit: 'boxes',
+                  estimatedKg: '3.0',
+                  storageMethod: 'Room Temperature'
+                })}
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 transition cursor-pointer"
+                title="12 boxes (3 kg) of fresh bakery surplus"
+              >
+                Bread & Pastries (3kg)
+              </button>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
