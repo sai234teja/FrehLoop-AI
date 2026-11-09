@@ -3,7 +3,7 @@ import os
 from app.core.config import settings
 from app.core.upload_validator import validate_and_save_image
 from app.schemas import InspectionResult
-from app.services.inspection_service import inspection_service
+from app.services.inspection_service import inspection_service, AIDependenciesNotInstalledError
 
 router = APIRouter(prefix="/inspection", tags=["AI Food Inspection"])
 
@@ -20,5 +20,10 @@ async def inspect_food(file: UploadFile = File(...)):
         # Run real AI inspection
         result = inspection_service.inspect_food_image(file_path)
         return result
+    except AIDependenciesNotInstalledError:
+        raise HTTPException(
+            status_code=503,
+            detail="AI model not installed. Install the backend AI dependencies to enable image inspection."
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Inspection failed: {str(e)}")

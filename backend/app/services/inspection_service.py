@@ -1,33 +1,65 @@
 import os
 import re
-import cv2
-import numpy as np
 from PIL import Image
-import torch
-from torchvision import models, transforms
 from typing import Dict, Any, List
+
+class AIDependenciesNotInstalledError(Exception):
+    """Raised when an AI dependency (torch, torchvision, cv2, easyocr, numpy) is missing."""
+    pass
 
 class FoodInspectionService:
     def __init__(self):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._device = None
         self._model = None
         self._ocr_reader = None
         self._labels = None
-        self._init_transforms()
+        self._transform = None
 
-    def _init_transforms(self):
-        self.transform = transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
-            )
-        ])
+    @property
+    def device(self):
+        if self._device is None:
+            try:
+                import torch
+                self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            except ImportError as e:
+                raise AIDependenciesNotInstalledError(
+                    "Image inspection requires PyTorch, Torchvision, OpenCV and EasyOCR. "
+                    "Install the backend AI dependencies to enable image inspection."
+                ) from e
+        return self._device
+
+    @property
+    def transform(self):
+        if self._transform is None:
+            try:
+                from torchvision import transforms
+                self._transform = transforms.Compose([
+                    transforms.Resize(256),
+                    transforms.CenterCrop(224),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]
+                    )
+                ])
+            except ImportError as e:
+                raise AIDependenciesNotInstalledError(
+                    "Image inspection requires PyTorch, Torchvision, OpenCV and EasyOCR. "
+                    "Install the backend AI dependencies to enable image inspection."
+                ) from e
+        return self._transform
 
     def _load_model(self):
         if self._model is None:
+            try:
+                import torch
+                from torchvision import models
+            except ImportError as e:
+                raise AIDependenciesNotInstalledError(
+                    "Image inspection requires PyTorch, Torchvision, OpenCV and EasyOCR. "
+                    "Install the backend AI dependencies to enable image inspection."
+                ) from e
+
             # We use MobileNetV2 pretrained weights for efficient and robust vision inference
             weights = models.MobileNet_V2_Weights.DEFAULT
             self._model = models.mobilenet_v2(weights=weights)
@@ -38,10 +70,37 @@ class FoodInspectionService:
 
     def _load_ocr(self):
         if self._ocr_reader is None:
-            import easyocr
+            try:
+                import torch
+                import easyocr
+            except ImportError as e:
+                raise AIDependenciesNotInstalledError(
+                    "Image inspection requires PyTorch, Torchvision, OpenCV and EasyOCR. "
+                    "Install the backend AI dependencies to enable image inspection."
+                ) from e
+
             # Initialize English OCR reader
             self._ocr_reader = easyocr.Reader(['en'], gpu=torch.cuda.is_available())
         return self._ocr_reader
+
+    def _check_image_safety(self, image_path: str) -> List[str]:
+        try:
+            import cv2
+            import numpy as np
+        except ImportError as e:
+            raise AIDependenciesNotInstalledError(
+                "Image inspection requires PyTorch, Torchvision, OpenCV and EasyOCR. "
+                "Install the backend AI dependencies to enable image inspection."
+            ) from e
+
+        safety_flags = []
+        cv_img = cv2.imread(image_path)
+        if cv_img is not None:
+            gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
+            mean_brightness = np.mean(gray)
+            if mean_brightness < 30:
+                safety_flags.append("Image is extremely dark; food condition cannot be clearly assessed.")
+        return safety_flags
 
     def map_to_food_category(self, raw_label: str, confidence: float) -> str:
         """
@@ -96,6 +155,14 @@ class FoodInspectionService:
         if not os.path.exists(image_path):
             raise FileNotFoundError(f"Image file not found: {image_path}")
 
+        try:
+            import torch
+        except ImportError as e:
+            raise AIDependenciesNotInstalledError(
+                "Image inspection requires PyTorch, Torchvision, OpenCV and EasyOCR. "
+                "Install the backend AI dependencies to enable image inspection."
+            ) from e
+
         # 1. Classification
         model = self._load_model()
         pil_img = Image.open(image_path).convert("RGB")
@@ -130,17 +197,13 @@ class FoodInspectionService:
                 if match:
                     extracted_expiry = match.group(0).strip()
                     break
+        except AIDependenciesNotInstalledError:
+            raise
         except Exception as e:
             ocr_text = f"OCR engine notice: {str(e)}"
 
         # 3. Objective visual checks (e.g. brightness / contrast degradation)
-        safety_flags = []
-        cv_img = cv2.imread(image_path)
-        if cv_img is not None:
-            gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
-            mean_brightness = np.mean(gray)
-            if mean_brightness < 30:
-                safety_flags.append("Image is extremely dark; food condition cannot be clearly assessed.")
+        safety_flags = self._check_image_safety(image_path)
 
         # AI inspection only assists categorizing and parsing visible text.
         # It never marks food as "Verified" or certified safe.

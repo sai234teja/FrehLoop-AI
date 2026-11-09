@@ -216,7 +216,12 @@ python -m venv venv
 # Activate virtual environment
 .\venv\Scripts\Activate.ps1
 
-# Install required dependencies
+# Option A: Lightweight Web/API Dependencies (Fastest, ~50 MB)
+# Installs core FastAPI, SQLAlchemy, Pydantic, and Uvicorn runtime:
+pip install "fastapi>=0.115.0" "uvicorn>=0.30.0" "sqlalchemy>=2.0.0" "pydantic>=2.8.0" "python-multipart>=0.0.9" "pydantic-settings>=2.0.0" "pillow>=10.0.0" "requests>=2.31.0"
+
+# Option B: Complete AI Inspection Dependencies (Includes PyTorch, Torchvision, OpenCV, EasyOCR, ~2.5 GB)
+# Required for automated image categorization and OCR extraction:
 pip install -r requirements.txt
 
 # Seed initial database (run with Python module resolution)
@@ -227,6 +232,10 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 *Backend runs at:* `http://127.0.0.1:8000`
 *Interactive Swagger API Documentation:* `http://127.0.0.1:8000/docs`
+
+> [!NOTE]
+> **Modular & Lazy AI Architecture:**
+> The FastAPI backend is designed to start cleanly even without heavy AI libraries installed. Image classification (PyTorch MobileNetV2) and OCR extraction (EasyOCR) dependencies are loaded lazily upon request. If the optional AI packages are omitted, all platform features (donor presets, NGO smart allocation, volunteer mapping, impact tracking) function normally, while direct image inspection via `/api/inspection/inspect` responds with `503 Service Unavailable` explaining that AI dependencies are required.
 
 ### Step 3: Frontend Setup
 ```powershell
