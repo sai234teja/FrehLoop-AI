@@ -105,6 +105,7 @@ export default function DonorDashboard({ currentUser }) {
 
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
+    setInspectionData(null);
     setInspectionError(null);
     setIsInspecting(true);
 
@@ -125,7 +126,12 @@ export default function DonorDashboard({ currentUser }) {
       }
     } catch (err) {
       console.error(err);
-      setInspectionError('AI service notice: Image processed with standard fallback checks.');
+      const errMsg = err?.message || '';
+      if (errMsg.includes('503') || errMsg.includes('AI model not installed')) {
+        setInspectionError('AI inspection is unavailable because the AI dependencies are not installed. Please confirm the food category manually.');
+      } else {
+        setInspectionError('AI inspection failed. Please confirm the food category manually.');
+      }
     } finally {
       setIsInspecting(false);
     }
@@ -381,6 +387,19 @@ export default function DonorDashboard({ currentUser }) {
                             </div>
                           </div>
                         ) : null}
+
+                        {inspectionError && (
+                          <div
+                            role="alert"
+                            aria-live="polite"
+                            className="mt-2.5 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2"
+                          >
+                            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                            <div className="flex-1 leading-relaxed">
+                              {inspectionError}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
